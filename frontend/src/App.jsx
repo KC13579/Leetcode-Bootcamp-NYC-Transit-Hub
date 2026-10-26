@@ -135,9 +135,48 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (selectedStationId) {
-      loadArrivals(selectedStationId);
+    if (filteredStations.length === 0) {
+      if (selectedStationId !== "") {
+        setSelectedStationId("");
+      }
+      return;
     }
+    const stillInList = filteredStations.some(
+      (station) => station.id === selectedStationId
+    );
+    if (!stillInList) {
+      setSelectedStationId(filteredStations[0].id);
+    }
+  }, [filteredStations, selectedStationId]);
+
+  useEffect(() => {
+    if (!selectedStationId) {
+      setArrivals([]);
+      return;
+    }
+    let active = true;
+    setArrivalsLoading(true);
+    setArrivalsError(false);
+    getStationArrivals(selectedStationId)
+      .then((data) => {
+        if (active) {
+          setArrivals(data);
+          setLastUpdated(new Date());
+        }
+      })
+      .catch(() => {
+        if (active) {
+          setArrivalsError(true);
+        }
+      })
+      .finally(() => {
+        if (active) {
+          setArrivalsLoading(false);
+        }
+      });
+    return () => {
+      active = false;
+    };
   }, [selectedStationId]);
 
   return (
