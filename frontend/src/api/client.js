@@ -13,6 +13,10 @@ export function getStations() {
   return fetchJson("/stations?limit=500");
 }
 
+export function getMapNetwork() {
+  return fetchJson("/map/lines");
+}
+
 export function getStationArrivals(stationId) {
   return fetchJson(
     `/stations/${encodeURIComponent(stationId)}/arrivals?limit=20`

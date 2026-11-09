@@ -43,3 +43,14 @@ class ServiceStatus(BaseModel):
     status: str
     alert_count: int
     alerts: list[ServiceAlert]
+
+
+class MapLine(BaseModel):
+    id: str
+    route: str
+    color: str
+    coordinates: list[tuple[float, float]]
+
+
+class MapNetwork(BaseModel):
+    lines: list[MapLine]

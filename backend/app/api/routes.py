@@ -2,7 +2,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 
-from app.models import Arrival, ServiceAlert, ServiceStatus, Station
+from app.models import Arrival, MapNetwork, ServiceAlert, ServiceStatus, Station
 from app.transit.service import TransitService
 
 router = APIRouter()
@@ -27,6 +27,11 @@ async def list_stations(
     limit: int = Query(default=100, ge=1, le=500),
 ) -> list[Station]:
     return await transit.list_stations(query, limit)
+
+
+@router.get("/map/lines", response_model=MapNetwork)
+async def get_map_network(transit: Transit) -> MapNetwork:
+    return await transit.get_map_network()
 
 
 @router.get("/stations/{station_id}", response_model=Station)

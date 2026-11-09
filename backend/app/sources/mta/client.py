@@ -34,6 +34,12 @@ class MTAClient:
         data = await self._get(self.settings.mta_stations_url, ttl_seconds=6 * 60 * 60)
         return data.decode("utf-8-sig")
 
+    async def get_static_gtfs(self) -> bytes:
+        return await self._get(
+            self.settings.mta_static_gtfs_url,
+            ttl_seconds=6 * 60 * 60,
+        )
+
     async def get_feed(self, feed_path: str) -> bytes:
         url = f"{self.settings.mta_feed_base_url}/{feed_path}"
         return await self._get(url, ttl_seconds=20)

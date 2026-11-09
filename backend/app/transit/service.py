@@ -2,9 +2,10 @@ import asyncio
 import math
 from datetime import UTC, datetime, timedelta
 
-from app.models import Arrival, ServiceAlert, ServiceStatus, Station
+from app.models import Arrival, MapNetwork, ServiceAlert, ServiceStatus, Station
 from app.sources.mta.alerts import MTAAlert, parse_active_alerts
 from app.sources.mta.client import MTAClient
+from app.sources.mta.map_lines import parse_map_network
 from app.sources.mta.realtime import feed_paths_for_routes, parse_arrivals
 from app.transit.station_registry import StationRegistry
 
@@ -17,6 +18,7 @@ class TransitService:
     def __init__(self, client: MTAClient, stations: StationRegistry):
         self.client = client
         self.stations = stations
+        self._map_network: MapNetwork | None = None
 
     async def list_stations(self, query: str, limit: int) -> list[Station]:
         await self.stations.ensure_loaded()
@@ -25,6 +27,12 @@ class TransitService:
     async def get_station(self, station_id: str) -> Station | None:
         await self.stations.ensure_loaded()
         return self.stations.get(station_id)
+
+    async def get_map_network(self) -> MapNetwork:
+        if self._map_network is None:
+            payload = await self.client.get_static_gtfs()
+            self._map_network = parse_map_network(payload)
+        return self._map_network
 
     async def get_arrivals(self, station_id: str, limit: int) -> list[Arrival] | None:
         await self.stations.ensure_loaded()

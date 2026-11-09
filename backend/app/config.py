@@ -8,6 +8,7 @@ class Settings:
     allowed_origins: tuple[str, ...]
     mta_stations_url: str
     mta_feed_base_url: str
+    mta_static_gtfs_url: str
 
 
 @lru_cache
@@ -23,4 +24,8 @@ def get_settings() -> Settings:
             "MTA_FEED_BASE_URL",
             "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds",
         ).rstrip("/"),
+        mta_static_gtfs_url=os.getenv(
+            "MTA_STATIC_GTFS_URL",
+            "https://rrgtfsfeeds.s3.amazonaws.com/gtfs_subway.zip",
+        ),
     )

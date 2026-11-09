@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { getAlerts, getStations } from "./api/client";
 import RouteOptions from "./components/RouteOptions";
 import StationPicker from "./components/StationPicker";
+import TransitMap from "./components/TransitMap";
 import TripDetails from "./components/TripDetails";
 import { createMockTrips } from "./data/mockTrips";
 
@@ -100,10 +101,12 @@ export default function App() {
 
   return (
     <div className="app-shell">
-      <main>
+      <main className={view === "search" ? "main--map" : ""}>
         {view === "search" && (
-          <section className="planner" aria-label="Route planner">
-            <form className="planner-card" onSubmit={planTrip}>
+          <section className="map-screen" aria-label="Route planner">
+            <TransitMap stations={stations} />
+            <div className="planner planner--map">
+              <form className="planner-card" onSubmit={planTrip}>
               {stationsLoading && (
                 <div className="state-message">
                   <span className="state-message__spinner" aria-hidden="true" />
@@ -165,7 +168,8 @@ export default function App() {
                   </button>
                 </>
               )}
-            </form>
+              </form>
+            </div>
           </section>
         )}
 
