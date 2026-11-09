@@ -3,7 +3,7 @@ from csv import DictReader
 from io import BytesIO, TextIOWrapper
 from zipfile import ZipFile
 
-from app.models import MapLine, MapNetwork
+from backend.app.models import MapLine, MapNetwork
 
 
 DEFAULT_LINE_COLOR = "#8A8A8A"
@@ -11,12 +11,14 @@ ROUTE_ALIASES = {"6X": "6", "7X": "7", "FX": "F"}
 
 
 def _rows(archive: ZipFile, filename: str) -> list[dict[str, str]]:
+    """Read a UTF-8 CSV table from a GTFS ZIP archive."""
     with archive.open(filename) as raw_file:
         text_file = TextIOWrapper(raw_file, encoding="utf-8-sig", newline="")
         return list(DictReader(text_file))
 
 
 def _path_length(points: list[tuple[float, float]]) -> float:
+    """Estimate relative coordinate-path length for selecting representative map shapes."""
     return sum(
         ((lat_b - lat_a) ** 2 + (lon_b - lon_a) ** 2) ** 0.5
         for (lat_a, lon_a), (lat_b, lon_b) in zip(points, points[1:])
@@ -24,6 +26,7 @@ def _path_length(points: list[tuple[float, float]]) -> float:
 
 
 def _simplify(points: list[tuple[float, float]]) -> list[tuple[float, float]]:
+    """Reduce map geometry points while preserving the final coordinate."""
     if len(points) <= 2:
         return points
     simplified = points[::3]
@@ -69,9 +72,9 @@ def parse_map_network(
             )
         )
 
-    candidates: dict[str, dict[tuple[tuple[float, float], tuple[float, float]], MapLine]] = (
-        defaultdict(dict)
-    )
+    candidates: dict[
+        str, dict[tuple[tuple[float, float], tuple[float, float]], MapLine]
+    ] = defaultdict(dict)
     lengths: dict[str, float] = {}
 
     for shape_id, sequenced_points in shape_points.items():

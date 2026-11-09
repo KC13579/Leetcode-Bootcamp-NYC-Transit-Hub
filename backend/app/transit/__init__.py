@@ -1,1 +1,0 @@
-"""Source-independent transit logic."""

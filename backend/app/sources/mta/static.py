@@ -14,9 +14,11 @@ class MTAStationRow:
     longitude: float
     north_direction_label: str | None
     south_direction_label: str | None
+    ada: str | None = None
 
 
 def parse_station_rows(csv_text: str) -> list[MTAStationRow]:
+    """Convert MTA station CSV rows into typed source records."""
     rows: list[MTAStationRow] = []
     for row in csv.DictReader(io.StringIO(csv_text)):
         stop_id = (row.get("GTFS Stop ID") or "").strip()
@@ -27,13 +29,16 @@ def parse_station_rows(csv_text: str) -> list[MTAStationRow]:
             MTAStationRow(
                 complex_id=complex_id,
                 stop_id=stop_id,
+                ada=(row.get("ADA") or "").strip() or None,
                 name=(row.get("Stop Name") or "Unknown station").strip(),
                 borough=(row.get("Borough") or "").strip(),
                 routes=tuple((row.get("Daytime Routes") or "").split()),
                 latitude=float(row["GTFS Latitude"]),
                 longitude=float(row["GTFS Longitude"]),
-                north_direction_label=(row.get("North Direction Label") or "").strip() or None,
-                south_direction_label=(row.get("South Direction Label") or "").strip() or None,
+                north_direction_label=(row.get("North Direction Label") or "").strip()
+                or None,
+                south_direction_label=(row.get("South Direction Label") or "").strip()
+                or None,
             )
         )
     return rows

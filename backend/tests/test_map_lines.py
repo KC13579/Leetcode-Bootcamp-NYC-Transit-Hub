@@ -1,7 +1,7 @@
 from io import BytesIO
 from zipfile import ZIP_DEFLATED, ZipFile
 
-from app.sources.mta.map_lines import parse_map_network
+from backend.app.sources.mta.map_lines import parse_map_network
 
 
 def _gtfs_zip() -> bytes:

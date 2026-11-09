@@ -2,9 +2,9 @@ from datetime import UTC, datetime, timedelta
 
 from google.transit import gtfs_realtime_pb2
 
-from app.sources.mta.alerts import parse_active_alerts
-from app.sources.mta.realtime import feed_paths_for_routes, parse_arrivals
-from app.sources.mta.static import parse_station_rows
+from backend.app.sources.mta.alerts import parse_active_alerts
+from backend.app.sources.mta.realtime import feed_paths_for_routes, parse_arrivals
+from backend.app.sources.mta.static import parse_station_rows
 
 
 def test_parses_static_station_csv():

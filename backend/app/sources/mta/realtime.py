@@ -25,6 +25,7 @@ class MTAArrival:
 
 
 def feed_paths_for_routes(routes: list[str]) -> set[str]:
+    """Choose the MTA real-time feeds that cover the requested subway lines."""
     paths = {FEEDS_BY_ROUTE[route] for route in routes if route in FEEDS_BY_ROUTE}
     # The three subway shuttles are split between the numbered and ACE feeds.
     if "S" in routes:
@@ -33,6 +34,7 @@ def feed_paths_for_routes(routes: list[str]) -> set[str]:
 
 
 def parse_arrivals(payload: bytes) -> list[MTAArrival]:
+    """Decode GTFS real-time trip updates into stop-level arrival predictions."""
     message = gtfs_realtime_pb2.FeedMessage()
     message.ParseFromString(payload)
     arrivals: list[MTAArrival] = []
