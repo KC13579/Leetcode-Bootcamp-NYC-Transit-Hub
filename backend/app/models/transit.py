@@ -16,6 +16,7 @@ class Station(StationSummary):
     stop_ids: list[str]
     north_direction_label: str | None = None
     south_direction_label: str | None = None
+    ada_status: str = "unknown"
 
 
 class Arrival(BaseModel):
@@ -36,6 +37,12 @@ class ServiceAlert(BaseModel):
     effect: str
     starts_at: datetime | None = None
     ends_at: datetime | None = None
+    cause: str | None = None
+    direction_ids: list[str] = Field(default_factory=list)
+    disruption_type: str = "other"
+    updated_at: datetime | None = None
+    is_stale: bool = False
+    scope: str = "line"
 
 
 class ServiceStatus(BaseModel):
@@ -43,6 +50,8 @@ class ServiceStatus(BaseModel):
     status: str
     alert_count: int
     alerts: list[ServiceAlert]
+    updated_at: datetime | None = None
+    data_status: str = "unknown"
 
 
 class MapLine(BaseModel):

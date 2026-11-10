@@ -14,9 +14,13 @@ class MTAAlert:
     effect: str
     starts_at: datetime | None
     ends_at: datetime | None
+    cause: str | None = None
+    direction_ids: tuple[str, ...] = ()
+    route_scoped: bool = True
 
 
 def _text(translated_string: object) -> str | None:
+    """Prefer English alert text and fall back to the first available translation."""
     translations = translated_string.translation
     if not translations:
         return None
@@ -28,14 +32,19 @@ def _text(translated_string: object) -> str | None:
 
 
 def _as_datetime(timestamp: int) -> datetime | None:
+    """Convert a nonzero Unix timestamp into an aware UTC datetime."""
     return datetime.fromtimestamp(timestamp, tz=UTC) if timestamp else None
 
 
-def parse_active_alerts(payload: bytes, now: datetime | None = None) -> list[MTAAlert]:
+def parse_active_alerts(
+    payload: bytes, now: datetime | None = None, window_end: datetime | None = None
+) -> list[MTAAlert]:
+    """Decode alerts whose active periods overlap the supplied time window."""
     message = gtfs_realtime_pb2.FeedMessage()
     message.ParseFromString(payload)
     now = now or datetime.now(UTC)
     now_timestamp = int(now.timestamp())
+    end_timestamp = int((window_end or now).timestamp())
     parsed: list[MTAAlert] = []
 
     for entity in message.entity:
@@ -47,8 +56,8 @@ def parse_active_alerts(payload: bytes, now: datetime | None = None) -> list[MTA
             (
                 period
                 for period in periods
-                if (not period.start or period.start <= now_timestamp)
-                and (not period.end or period.end >= now_timestamp)
+                if (not period.start or period.start <= end_timestamp)
+                and (not period.end or period.end > now_timestamp)
             ),
             None,
         )
@@ -68,6 +77,18 @@ def parse_active_alerts(payload: bytes, now: datetime | None = None) -> list[MTA
         parsed.append(
             MTAAlert(
                 id=entity.id,
+                cause=gtfs_realtime_pb2.Alert.Cause.Name(alert.cause),
+                direction_ids=tuple(
+                    sorted(
+                        {
+                            str(item.trip.direction_id)
+                            for item in alert.informed_entity
+                            if item.HasField("trip")
+                            and item.trip.HasField("direction_id")
+                        }
+                    )
+                ),
+                route_scoped=any(not item.stop_id for item in alert.informed_entity),
                 title=title,
                 description=_text(alert.description_text),
                 routes=tuple(routes),

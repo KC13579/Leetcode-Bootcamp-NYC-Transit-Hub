@@ -1,4 +1,4 @@
-from app.transit.station_registry import StationRegistry
+from backend.app.repository.StationRepository import StationRepository
 
 
 class FakeClient:
@@ -12,7 +12,7 @@ class FakeClient:
 
 
 async def test_registry_combines_stops_into_canonical_complex():
-    registry = StationRegistry(FakeClient())
+    registry = StationRepository(FakeClient())
 
     await registry.ensure_loaded()
     station = registry.get("mta-complex:611")
