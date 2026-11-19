@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { getAlerts, getStations } from "./api/client";
 import RouteOptions from "./components/RouteOptions";
+import StationDetails from "./components/StationDetails";
 import StationPicker from "./components/StationPicker";
 import TransitMap from "./components/TransitMap";
 import TripDetails from "./components/TripDetails";
@@ -16,6 +17,8 @@ export default function App() {
   const [destination, setDestination] = useState(null);
   const [view, setView] = useState("search");
   const [selectedTrip, setSelectedTrip] = useState(null);
+  const [selectedStation, setSelectedStation] = useState(null);
+  const [stationReturnView, setStationReturnView] = useState("search");
 
   useEffect(() => {
     let active = true;
@@ -93,6 +96,18 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
+  function openStation(station) {
+    setSelectedStation(station);
+    setStationReturnView(view);
+    setView("station");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function closeStation() {
+    setView(stationReturnView);
+    setSelectedStation(null);
+  }
+
   function editTrip() {
     setSelectedTrip(null);
     setView("search");
@@ -104,7 +119,7 @@ export default function App() {
       <main className={view === "search" ? "main--map" : ""}>
         {view === "search" && (
           <section className="map-screen" aria-label="Route planner">
-            <TransitMap stations={stations} />
+            <TransitMap stations={stations} onStationSelect={openStation} />
             <div className="planner planner--map">
               <form className="planner-card" onSubmit={planTrip}>
               {stationsLoading && (
@@ -158,6 +173,24 @@ export default function App() {
                     />
                   </div>
 
+                  {(origin || destination) && (
+                    <div className="station-links">
+                      {[origin, destination]
+                        .filter(Boolean)
+                        .filter((station, index, list) => list.findIndex((s) => s.id === station.id) === index)
+                        .map((station) => (
+                          <button
+                            type="button"
+                            className="text-button text-button--small"
+                            key={station.id}
+                            onClick={() => openStation(station)}
+                          >
+                            {station.name} station info
+                          </button>
+                        ))}
+                    </div>
+                  )}
+
                   {sameStation && (
                     <p className="form-error">Start and destination must be different.</p>
                   )}
@@ -188,6 +221,14 @@ export default function App() {
             trip={selectedTrip}
             onBack={() => setView("options")}
             onEdit={editTrip}
+          />
+        )}
+
+        {view === "station" && selectedStation && (
+          <StationDetails
+            key={selectedStation.id}
+            station={selectedStation}
+            onBack={closeStation}
           />
         )}
       </main>
