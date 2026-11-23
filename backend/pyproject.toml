@@ -6,6 +6,8 @@ dependencies = [
   "fastapi>=0.115,<1",
   "firebase-admin>=6.5,<8",
   "python-dotenv>=1,<2",
+  # Windows has no system time zone database; zoneinfo needs this package there.
+  "tzdata>=2024.1",
   "gtfs-realtime-bindings>=1.0.0,<2",
   "httpx>=0.27,<1",
   "uvicorn[standard]>=0.30,<1",

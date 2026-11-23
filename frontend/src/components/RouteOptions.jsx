@@ -8,7 +8,7 @@ function timeLabel(value) {
   });
 }
 
-export default function RouteOptions({ origin, destination, trips, onSelect, onModify }) {
+export default function RouteOptions({ origin, destination, trips, status, notice, onSelect, onModify }) {
   return (
     <section className="trip-results" aria-labelledby="route-options-title">
       <div className="trip-summary">
@@ -24,6 +24,14 @@ export default function RouteOptions({ origin, destination, trips, onSelect, onM
           Edit
         </button>
       </div>
+
+      {status === "loading" && (
+        <div className="state-message">
+          <span className="state-message__spinner" aria-hidden="true" />
+          Finding routes…
+        </div>
+      )}
+      {notice && <p className={`demo-notice${status === "error" ? " demo-notice--error" : ""}`}>{notice}</p>}
 
       <div className="route-options">
         {trips.map((trip) => (
@@ -52,7 +60,7 @@ export default function RouteOptions({ origin, destination, trips, onSelect, onM
             <div className="route-preview" aria-label="Route preview">
               {trip.steps
                 .filter((step) => step.type !== "transfer")
-                .map((step) => {
+                .map((step, index) => {
                   const backgroundColor =
                     step.type === "subway" ? lineColor(step.line) : "#344451";
                   const darkText =
@@ -60,7 +68,7 @@ export default function RouteOptions({ origin, destination, trips, onSelect, onM
                   return (
                   <span
                     className={`route-preview__segment route-preview__segment--${step.type}`}
-                    key={`${step.type}-${step.title}`}
+                    key={`${index}-${step.type}-${step.title}`}
                     style={{
                       backgroundColor,
                       color: darkText ? "#171717" : "#FFFFFF",

@@ -1,6 +1,8 @@
 import { lineColor } from "../data/mockTrips";
+import { cleanAlertText } from "../utils/alerts";
 import LineBadge from "./LineBadge";
 import TransitIcon from "./TransitIcon";
+import TripMap from "./TripMap";
 
 function timeLabel(value) {
   return new Date(value).toLocaleTimeString([], {
@@ -43,6 +45,14 @@ export default function TripDetails({ trip, onBack, onEdit }) {
           <p>{trip.origin.name} <span aria-hidden="true">→</span> {trip.destination.name}</p>
         </div>
 
+        {trip.source === "demo" && (
+          <p className="demo-notice">
+            Demo route: times and stops are illustrative until live trip planning is connected.
+          </p>
+        )}
+
+        <TripMap trip={trip} />
+
         <div className="itinerary-card">
           <div className="itinerary-card__heading">
             <div className="itinerary-card__lines">
@@ -54,7 +64,7 @@ export default function TripDetails({ trip, onBack, onEdit }) {
             {trip.steps.map((step, index) => (
               <li
                 className={`timeline__step timeline__step--${step.type}`}
-                key={`${step.type}-${step.title}`}
+                key={`${index}-${step.type}-${step.title}`}
                 style={{
                   "--step-color":
                     step.type === "subway" ? lineColor(step.line) : "#344451",
@@ -70,7 +80,7 @@ export default function TripDetails({ trip, onBack, onEdit }) {
                   {step.type === "walk" && (
                     <div className="timeline__compact-step">
                       <strong>
-                        Walk {step.duration} min ({step.distance})
+                        Walk {step.duration} min{step.distance ? ` (${step.distance})` : ""}
                       </strong>
                       {index === 0 && (
                         <time>{timeLabel(trip.departureTime)}</time>
@@ -93,6 +103,7 @@ export default function TripDetails({ trip, onBack, onEdit }) {
                       <p className="timeline__direction">
                         Follow signs for {step.direction} · {step.line} platform
                       </p>
+                      {step.stops.length > 2 && (
                       <details className="stop-list">
                         <summary>
                           Ride {step.stops.length - 1} stops
@@ -103,6 +114,7 @@ export default function TripDetails({ trip, onBack, onEdit }) {
                           ))}
                         </ol>
                       </details>
+                      )}
                       <div className="timeline__arrival-stop">
                         <span aria-hidden="true" />
                         <strong>{step.stops[step.stops.length - 1]}</strong>
@@ -113,7 +125,7 @@ export default function TripDetails({ trip, onBack, onEdit }) {
                   {step.type === "transfer" && (
                     <div className="timeline__transfer">
                       <strong>Walk {step.duration} min</strong>
-                      <span>Wait {step.waitDuration} min</span>
+                      {step.waitDuration > 0 && <span>Wait {step.waitDuration} min</span>}
                     </div>
                   )}
                 </div>
@@ -132,8 +144,7 @@ export default function TripDetails({ trip, onBack, onEdit }) {
                 <span aria-hidden="true">!</span>
                 <strong>{alert.routes.filter((route) => trip.lines.includes(route)).join(", ")}</strong>
               </div>
-              <p>{alert.title}</p>
-              {alert.description && <p>{alert.description}</p>}
+              <p>{cleanAlertText(alert.title)}</p>
             </article>
           ))}
         </div>

@@ -9,7 +9,7 @@ const NYC_BOUNDS = [
   [40.94, -73.64],
 ];
 
-function stationPopup(station) {
+function stationPopup(station, onSelect) {
   const content = document.createElement("div");
   const name = document.createElement("strong");
   name.textContent = station.name;
@@ -20,11 +20,22 @@ function stationPopup(station) {
     routes.textContent = station.routes.join(" · ");
     content.append(routes);
   }
+
+  if (onSelect) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "station-popup__action";
+    button.textContent = "Station info →";
+    button.addEventListener("click", () => onSelect(station));
+    content.append(button);
+  }
   return content;
 }
 
-export default function TransitMap({ stations }) {
+export default function TransitMap({ stations, onStationSelect }) {
   const containerRef = useRef(null);
+  const onStationSelectRef = useRef(onStationSelect);
+  onStationSelectRef.current = onStationSelect;
   const mapRef = useRef(null);
   const lineLayerRef = useRef(null);
   const stationLayerRef = useRef(null);
@@ -124,11 +135,14 @@ export default function TransitMap({ stations }) {
         fillOpacity: 1,
       }).addTo(layer);
 
-      marker.bindPopup(stationPopup(station), {
-        className: "station-popup",
-        closeButton: false,
-        offset: [0, -2],
-      });
+      marker.bindPopup(
+        stationPopup(station, (selected) => onStationSelectRef.current?.(selected)),
+        {
+          className: "station-popup",
+          closeButton: false,
+          offset: [0, -2],
+        },
+      );
       return { marker, station };
     });
 

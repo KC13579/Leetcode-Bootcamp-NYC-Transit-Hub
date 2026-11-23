@@ -151,7 +151,7 @@ def client(monkeypatch):
                 ],
             )
 
-        if str(request.url).endswith("Stations.csv"):
+        if "39hk-dx4f" in str(request.url):
             return httpx.Response(200, text=stations)
         if str(request.url).endswith("gtfs_subway.zip"):
             return httpx.Response(200, content=buffer.getvalue())

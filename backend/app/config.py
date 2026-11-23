@@ -31,7 +31,7 @@ def get_settings() -> Settings:
         ),
         mta_stations_url=os.getenv(
             "MTA_STATIONS_URL",
-            "https://web.mta.info/developers/data/nyct/subway/Stations.csv",
+            "https://data.ny.gov/api/views/39hk-dx4f/rows.csv?accessType=DOWNLOAD",
         ),
         mta_feed_base_url=os.getenv(
             "MTA_FEED_BASE_URL",

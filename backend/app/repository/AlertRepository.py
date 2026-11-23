@@ -13,12 +13,16 @@ class AlertRepository:
         """Store the dependencies and initialize the state required by this component."""
         self.client = client
         self.updated_at: datetime | None = None
+        self.checked_at: datetime | None = None
 
     async def find_active(
         self, at: datetime | None = None, window_end: datetime | None = None
     ) -> list[MTAAlert]:
         """Decode alerts overlapping the requested interval and retain the feed publication timestamp."""
         payload = await self.client.get_feed("camsys%2Fsubway-alerts")
+        # The feed header only changes when MTA publishes a change, so a quiet
+        # feed can carry an old timestamp. Record when it was last downloaded.
+        self.checked_at = datetime.now(UTC)
         try:
             message = gtfs_realtime_pb2.FeedMessage()
             message.ParseFromString(payload)
