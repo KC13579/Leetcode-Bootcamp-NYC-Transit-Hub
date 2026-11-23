@@ -198,6 +198,7 @@ export function createMockTrips(origin, destination) {
     const departureTime = addMinutes(now, trip.departureOffset);
     return {
       ...trip,
+      source: "demo",
       origin,
       destination,
       departureTime,

@@ -41,6 +41,10 @@ class MTAClient:
         data = await self._get(self.settings.mta_stations_url, ttl_seconds=6 * 60 * 60)
         return data.decode("utf-8-sig")
 
+    def forget_stations_csv(self) -> None:
+        """Drop a cached station list so a bad download is retried on the next request."""
+        self._cache.pop(self.settings.mta_stations_url, None)
+
     async def get_static_gtfs(self) -> bytes:
         """Download and cache the MTA static GTFS ZIP archive."""
         return await self._get(

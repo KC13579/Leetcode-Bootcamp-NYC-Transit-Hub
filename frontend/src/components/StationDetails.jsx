@@ -6,6 +6,8 @@ import {
   getStationAccessibility,
   getStationArrivals,
 } from "../api/client";
+import { cleanAlertText } from "../utils/alerts";
+import FavoriteButton from "./FavoriteButton";
 import LineBadge from "./LineBadge";
 
 const ARRIVALS_REFRESH_MS = 30_000;
@@ -291,11 +293,11 @@ function AlertsSection({ stationId }) {
                   <span className="status-chip status-chip--warn">May be outdated</span>
                 )}
               </div>
-              <strong>{alert.title}</strong>
+              <strong>{cleanAlertText(alert.title)}</strong>
               {alert.description && (
                 <details>
                   <summary>Details</summary>
-                  <p>{alert.description}</p>
+                  <p>{cleanAlertText(alert.description)}</p>
                 </details>
               )}
               {(alert.starts_at || alert.ends_at) && (
@@ -318,7 +320,7 @@ function AlertsSection({ stationId }) {
  * `station` is the summary object from /stations (id, name, routes); the full
  * record is fetched from /stations/{id} for borough and ADA status.
  */
-export default function StationDetails({ station, onBack }) {
+export default function StationDetails({ station, onBack, onOpenLine }) {
   const details = useStationResource(getStation, station.id);
   const full = details.data ?? station;
 
@@ -328,6 +330,7 @@ export default function StationDetails({ station, onBack }) {
         <button type="button" className="text-button" onClick={onBack}>
           <span aria-hidden="true">←</span> Back
         </button>
+        <FavoriteButton kind="station" targetId={station.id} label={station.name} />
       </div>
 
       <div className="detail-card">
@@ -336,9 +339,21 @@ export default function StationDetails({ station, onBack }) {
           <h1 id="station-details-title">{full.name}</h1>
           {full.borough && <p>{BOROUGHS[full.borough] ?? full.borough}</p>}
           <div className="station-details__lines">
-            {full.routes.map((route) => (
-              <LineBadge line={route} key={route} />
-            ))}
+            {full.routes.map((route) =>
+              onOpenLine ? (
+                <button
+                  type="button"
+                  className="badge-button"
+                  key={route}
+                  onClick={() => onOpenLine(route)}
+                  aria-label={`${route} line status`}
+                >
+                  <LineBadge line={route} />
+                </button>
+              ) : (
+                <LineBadge line={route} key={route} />
+              ),
+            )}
           </div>
         </div>
 

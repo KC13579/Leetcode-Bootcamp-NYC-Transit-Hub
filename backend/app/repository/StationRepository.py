@@ -2,6 +2,7 @@ import asyncio
 import math
 import re
 
+from backend.app.core.errors import APIError
 from backend.app.models import Station
 from backend.app.sources.mta.client import MTAClient
 from backend.app.sources.mta.static import parse_station_rows
@@ -25,6 +26,11 @@ class StationRepository:
             if self._stations:
                 return
             self._load(await self._client.get_stations_csv())
+            if not self._stations:
+                # An HTML error page or moved file parses to zero rows; say so
+                # instead of answering every station request with an empty list.
+                self._client.forget_stations_csv()
+                raise APIError(502, "The MTA station list could not be read.")
 
     def _load(self, csv_text: str) -> None:
         """Group platforms into canonical station complexes and build stop-ID aliases."""

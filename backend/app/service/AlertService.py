@@ -49,11 +49,15 @@ class AlertService:
 
     @property
     def data_status(self) -> str:
-        """Describe whether the alert snapshot is fresh, stale or missing its source timestamp."""
-        updated = self.repository.updated_at
-        if updated is None:
+        """Describe whether the alert snapshot is fresh, stale or missing its source timestamp.
+
+        MTA only advances the alert feed header when alerts change, so freshness is
+        judged by when the feed was last downloaded successfully, not by the header.
+        """
+        if self.repository.updated_at is None:
             return "unknown"
-        age = (datetime.now(UTC) - updated).total_seconds()
+        checked = getattr(self.repository, "checked_at", None) or self.repository.updated_at
+        age = (datetime.now(UTC) - checked).total_seconds()
         return (
             "fresh"
             if -60 <= age <= self.repository.client.settings.feed_max_age_seconds

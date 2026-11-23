@@ -199,7 +199,7 @@ async def test_reroute_uses_explicit_skips_and_preserves_missing_stop_uncertaint
     alerts.header.timestamp = int(now.timestamp())
 
     def respond(request):
-        if str(request.url).endswith("Stations.csv"):
+        if "39hk-dx4f" in str(request.url):
             return httpx.Response(200, text=stations)
         if str(request.url).endswith("gtfs_subway.zip"):
             return httpx.Response(200, content=buffer.getvalue())
@@ -235,7 +235,7 @@ async def test_missing_feed_timestamp_never_produces_good_service():
     feed.header.gtfs_realtime_version = "2.0"
 
     def respond(request):
-        if str(request.url).endswith("Stations.csv"):
+        if "39hk-dx4f" in str(request.url):
             return httpx.Response(
                 200,
                 text="Complex ID,GTFS Stop ID,Stop Name,Borough,Daytime Routes,GTFS Latitude,GTFS Longitude\n1,101,First,M,F,40.7,-74\n",
@@ -249,6 +249,33 @@ async def test_missing_feed_timestamp_never_produces_good_service():
         alerts = AlertService(AlertRepository(client), StationRepository(client))
         results = await StatusService(alerts).get_status()
         assert all(result.status == "Unknown" for result in results)
+    finally:
+        await client.close()
+
+
+async def test_quiet_alert_feed_with_old_header_is_still_fresh():
+    # MTA only advances the header timestamp when alerts change, so an hour-old
+    # header on a feed that was just downloaded must not mark every line Unknown.
+    feed = gtfs_realtime_pb2.FeedMessage()
+    feed.header.gtfs_realtime_version = "2.0"
+    feed.header.timestamp = int((datetime.now(UTC) - timedelta(hours=1)).timestamp())
+
+    def respond(request):
+        if "39hk-dx4f" in str(request.url):
+            return httpx.Response(
+                200,
+                text="Complex ID,GTFS Stop ID,Stop Name,Borough,Daytime Routes,GTFS Latitude,GTFS Longitude\n1,101,First,M,F,40.7,-74\n",
+            )
+        return httpx.Response(200, content=feed.SerializeToString())
+
+    from backend.app.service.StatusService import StatusService
+
+    client = MTAClient(get_settings(), transport=httpx.MockTransport(respond))
+    try:
+        alerts = AlertService(AlertRepository(client), StationRepository(client))
+        results = await StatusService(alerts).get_status()
+        assert alerts.data_status == "fresh"
+        assert all(result.status == "Good Service" for result in results)
     finally:
         await client.close()
 
