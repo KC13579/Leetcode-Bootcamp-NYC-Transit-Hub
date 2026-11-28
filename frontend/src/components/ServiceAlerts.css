@@ -1,0 +1,120 @@
+.service-alerts {
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 12px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  color: #1f2937;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.service-alerts-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  padding: 16px;
+  border: none;
+  background: white;
+  color: #1f2937;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.service-alerts-toggle:hover {
+  background: #f9fafb;
+}
+
+.service-alerts-count {
+  margin-left: auto;
+  background: #fff3cd;
+  color: #92400e;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+}
+
+.service-alerts-content {
+  padding: 12px 16px;
+  max-height: 300px;
+  overflow-y: auto;
+  border-top: 1px solid #e5e7eb;
+}
+
+.service-alerts-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.service-alerts-toolbar button {
+  padding: 6px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: white;
+  color: #374151;
+  cursor: pointer;
+}
+
+.service-alerts-toolbar button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.service-alerts-item {
+  padding: 12px 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.service-alerts-item:last-child {
+  border-bottom: none;
+}
+
+.service-alerts-routes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.service-alerts-route {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.service-alerts-item h4 {
+  margin: 6px 0;
+  font-size: 14px;
+  color: #1f2937;
+}
+
+.service-alerts-item p {
+  margin: 4px 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #4b5563;
+  overflow-wrap: anywhere;
+}
+
+.service-alerts-error {
+  color: #dc2626;
+  font-size: 13px;
+}
+
+.service-alerts-empty {
+  color: #15803d;
+  font-size: 13px;
+}
