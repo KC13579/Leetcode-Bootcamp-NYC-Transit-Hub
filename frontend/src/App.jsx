@@ -7,6 +7,8 @@ import TransitMap from "./components/TransitMap";
 import TripDetails from "./components/TripDetails";
 import { createMockTrips } from "./data/mockTrips";
 
+import ServiceAlerts from "./components/ServiceAlerts";
+
 export default function App() {
   const [stations, setStations] = useState([]);
   const [stationsLoading, setStationsLoading] = useState(true);
@@ -169,6 +171,7 @@ export default function App() {
                 </>
               )}
               </form>
+              <ServiceAlerts />
             </div>
           </section>
         )}
